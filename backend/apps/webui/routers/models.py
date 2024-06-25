@@ -18,7 +18,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=Union[List[ModelResponse], Optional[ModelResponse]])
-async def get_models(request: Request, id: str = None, user=Depends(get_verified_user)):
+async def get_models(id: str = None, user=Depends(get_verified_user)):
     if id:
         model = Models.get_model_by_id(id)
 
