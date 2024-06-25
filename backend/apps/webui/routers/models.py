@@ -17,9 +17,20 @@ router = APIRouter()
 ###########################
 
 
-@router.get("/", response_model=List[ModelResponse])
-async def get_models(user=Depends(get_verified_user)):
-    return Models.get_all_models()
+@router.get("/", response_model=Union[List[ModelResponse], Optional[ModelResponse]])
+async def get_models(request: Request, id: str = None, user=Depends(get_verified_user)):
+    if id:
+        model = Models.get_model_by_id(id)
+
+        if model:
+            return model
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=ERROR_MESSAGES.NOT_FOUND,
+            )
+    else:
+        return Models.get_all_models()
 
 
 ############################
@@ -46,24 +57,6 @@ async def add_new_model(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=ERROR_MESSAGES.DEFAULT(),
             )
-
-
-############################
-# GetModelById
-############################
-
-
-@router.get("/", response_model=Optional[ModelModel])
-async def get_model_by_id(id: str, user=Depends(get_verified_user)):
-    model = Models.get_model_by_id(id)
-
-    if model:
-        return model
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=ERROR_MESSAGES.NOT_FOUND,
-        )
 
 
 ############################
